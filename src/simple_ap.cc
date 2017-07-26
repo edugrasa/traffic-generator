@@ -208,24 +208,7 @@ int simple_ap::request_flow(const std::string& apn,
 /* FIXME, correct return value, update my_flows */
 int simple_ap::release_flow(const int port_id)
 {
-	DeallocateFlowResponseEvent * resp = 0;
-	unsigned int seqNum;
-	IPCEvent * event;
-
-	seqNum = ipcManager->requestFlowDeallocation(port_id);
-
-	for (;;) {
-		event = ipcEventProducer->eventWait();
-		if (event &&
-		    event->eventType == DEALLOCATE_FLOW_RESPONSE_EVENT
-		    && event->sequenceNumber == seqNum) {
-			break;
-		}
-		LOG_DBG("Got new event %d", event->eventType);
-	}
-	resp = dynamic_cast<DeallocateFlowResponseEvent*>(event);
-
-	ipcManager->flowDeallocationResult(port_id, resp->result == 0);
+	ipcManager->deallocate_flow(port_id);
 	return 0;
 }
 
