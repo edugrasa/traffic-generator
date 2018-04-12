@@ -102,7 +102,9 @@ void simple_ap::unregister_ap(const vector<string>& dif_names)
 
 int simple_ap::request_flow(const std::string& apn,
 			    const std::string& api,
-			    const std::string& qos_cube)
+			    const std::string& qos_cube,
+			    unsigned short loss,
+			    unsigned int delay)
 {
 	AllocateFlowRequestResultEvent * afrrevent;
 	FlowSpecification qos_spec;
@@ -115,6 +117,9 @@ int simple_ap::request_flow(const std::string& apn,
 		qos_spec.maxAllowableGap = -1;
 	else
 		throw IPCException("not a valid qoscube");
+
+        qos_spec.loss = loss;
+	qos_spec.delay = delay;
 
 	seqnum = ipcManager->requestFlowAllocation(
 		ApplicationProcessNamingInformation(this->name, this->instance),
@@ -151,6 +156,8 @@ int simple_ap::request_flow(const std::string& apn,
 int simple_ap::request_flow(const std::string& apn,
 			    const std::string& api,
 			    const std::string& qos_cube,
+			    unsigned short loss,
+			    unsigned int delay,
 			    const std::string& dif_name)
 {
 	AllocateFlowRequestResultEvent * afrrevent;
@@ -164,8 +171,12 @@ int simple_ap::request_flow(const std::string& apn,
 		qos_spec.maxAllowableGap = -1;
 	else
 		throw IPCException("not a valid qoscube");
+
 	if (dif_name == string())
-		return request_flow(apn, api, qos_cube);
+		return request_flow(apn, api, qos_cube, loss, delay);
+
+	qos_spec.loss = loss;
+	qos_spec.delay = delay;
 
 	seqnum = ipcManager->requestFlowAllocationInDIF(
 		ApplicationProcessNamingInformation(

@@ -43,6 +43,8 @@ int main(int argc, char * argv[])
 	static std::string	  qos_cube;
 	static std::string        csv_path;
 	static double		  poisson_mean;
+        static unsigned int       delay;
+        static unsigned short     loss;
 
 	try {
 		TCLAP::CmdLine cmd("traffic-generator", ' ', PACKAGE_VERSION);
@@ -176,6 +178,18 @@ int main(int argc, char * argv[])
 			false,
 			"",
 			"string");
+		TCLAP::ValueArg<unsigned int> delay_arg("",
+                        "delay",
+                        "Maximum delay in microseconds. It should be a value greater than zero",
+                        false,
+                        0,
+                        "unsigned integer");
+                TCLAP::ValueArg<unsigned int> loss_arg("",
+                        "loss",
+                        "Maximum loss probability (1/10000). It should be a value greater than zero",
+                        false,
+                        10000,
+                        "unsigned short");
 
 		cmd.add(sleepArg);
 		cmd.add(registrationArg);
@@ -194,6 +208,8 @@ int main(int argc, char * argv[])
 		cmd.add(intervalArg);
 		cmd.add(listenArg);
 		cmd.add(csvPathArg);
+		cmd.add(delay_arg);
+		cmd.add(loss_arg);
 		cmd.parse(argc, argv);
 
 		listen		  = listenArg.getValue();
@@ -213,6 +229,8 @@ int main(int argc, char * argv[])
 		busy		  = !sleepArg.getValue();
 		poisson_mean	  = poissonMeanArg.getValue();
 		csv_path          = csvPathArg.getValue();
+		delay		  = delay_arg.getValue();
+		loss		  = loss_arg.getValue();
 
 	} catch (TCLAP::ArgException &e) {
 		LOG_ERR("Error: %s for arg %d",
@@ -240,7 +258,9 @@ int main(int argc, char * argv[])
 				c.register_ap(dif_name);
 			int fd = c.request_flow(server_apn,
 						server_api,
-						qos_cube);
+						qos_cube,
+ 						loss,
+						delay);
 			if (distribution_type == "CBR" ||
 			    distribution_type == "cbr")
 				c.single_cbr_test(size,

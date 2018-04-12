@@ -49,11 +49,15 @@ simple_ap(const string& apn,
 /* requesting and releasing N-1-flows */
 	int request_flow(const std::string& apn,
 			 const std::string& api,
-			 const std::string& qos_cube);
+			 const std::string& qos_cube,
+			 unsigned short loss,
+			 unsigned int delay);
 
 	int request_flow(const std::string& apn,
 			 const std::string& api,
 			 const std::string& qos_cube,
+			 unsigned short loss,
+			 unsigned int delay,
 			 const std::string& dif_name);
 
 	int release_flow(const int port_id);
